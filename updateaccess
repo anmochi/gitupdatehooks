@@ -1,0 +1,7 @@
+[branches]
+master = joe, allen
+develop = *
+issue-* = *
+feature-* = *
+release-* = *
+hotfix-* = *

@@ -1,0 +1,36 @@
+#!/usr/bin/php
+
+<?php
+// define constants
+define("ACCESSFILE", dirname(__FILE__) . "/updateaccess");
+
+$pushbranch = $argv[1];
+$pushuser = $_SERVER['GIT_COMMITTER_NAME'];
+
+// read access control file
+$branches = parse_ini_file(ACCESSFILE, true);
+if (!$branches) {
+	echo "can't load access control list.\n";
+	exit(51);
+}
+
+// check pushuser can push to pushbranch
+foreach ($branches['branches'] as $key => $val) {
+	if (fnmatch("refs/heads/" . $key, $pushbranch)) {
+		// branch name match.
+		if($val === "") {
+			// all user can push. success.
+			exit(0);
+		}
+		$users = explode(',', $val);
+		foreach ($users as $no => $user) {
+			if (fnmatch(trim($user), $pushuser)) {
+				// user name match. success.
+				exit(0);
+			}
+		}
+	}
+}
+
+echo "user $pushuser can't push to $pushbranch.\n";
+exit(1);
